@@ -1,0 +1,13 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/XmlToExcel/.vs/XmlToExcel/v14/.suo
+/XmlToExcel/XmlToExcel/obj/Debug/
+/XmlToExcel/XmlToExcel/bin/Debug/
+/XmlToExcel/XmlToExcelUi/bin/Debug/
+/XmlToExcel/XmlToExcelUi/obj/Debug/
+/XmlToExcel/XmlToExcel/obj/Release/
+/XmlToExcel/XmlToExcel/bin/Release/
+/XmlToExcel/XmlToExcelUi/bin/Release/
+/XmlToExcel/XmlToExcelUi/obj/Release/
