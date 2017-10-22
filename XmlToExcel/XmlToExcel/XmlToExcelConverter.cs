@@ -17,12 +17,26 @@ namespace XmlToExcel
             var fileName = outputExcel;
 
             var jsonObject = GetJsonObject(completePathOfXmlFile);
+            AddCompleteSummary(jsonObject, fileName, "CompleteSummary");
             var nodesToFirstDimensionArrays = new ArrayNodePathsIdentifier(jsonObject).NodesToFirstDimensionArrays;
             foreach (var nodesToArray in nodesToFirstDimensionArrays)
             {
                 var sheetName = GetSheetName(nodesToArray);
                 AddExcelSheet(nodesToArray, jsonObject, fileName, sheetName);
                 AddDetailedExcelSheet(nodesToArray, jsonObject, fileName, sheetName + "Detailed");
+            }
+        }
+
+        private static void AddCompleteSummary(JObject jsonObject, string fileName, string sheetName)
+        {
+            using (var writer = new ExcelWriter(fileName, sheetName))
+            {
+                writer.WriteHeading("Path to Node", "Value");
+                Action<string, string> writeFunction = (a, b) =>
+                {
+                    writer.Write( a, b);
+                };
+                LogObject(0, new List<string>(),jsonObject,writeFunction );
             }
         }
 
