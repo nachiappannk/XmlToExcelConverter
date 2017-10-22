@@ -33,15 +33,29 @@ namespace XmlToExcel
             using (var writer = new ExcelWriter(fileName, sheetName))
             {
                 writer.WriteHeading("ArrayIndex","Relative Node","Value");
+
+
                 var nodes = new List<string>();
                 for (int i = 0; i < jArray.Count; i++)
                 {
-                    LogToken(i, nodes, jArray.ElementAt(i), writer);
+                    int index = i;
+                    Action<string,string> writeFunction = (a,b) =>
+                    {
+                        if (index % 2 == 0)
+                        {
+                            writer.WriteLineGreen(index.ToString(), a, b);
+                        }
+                        else
+                        {
+                            writer.WriteLineBlue(index.ToString(), a, b);
+                        }
+                    };
+                    LogToken(i, nodes, jArray.ElementAt(i), writeFunction);
                 }
             }
         }
 
-        private static void LogToken(int arrayIndex, List<string> baseNodes, JToken token, ExcelWriter writer)
+        private static void LogToken(int arrayIndex, List<string> baseNodes, JToken token, Action<string,string> writer)
         {
             var value = token as JValue;
             if (value != null)
@@ -63,7 +77,7 @@ namespace XmlToExcel
 
         }
 
-        private static void LogValue(int arrayIndex , List<string> baseNodes, JValue value, ExcelWriter writer)
+        private static void LogValue(int arrayIndex , List<string> baseNodes, JValue value, Action<string, string> writer)
         {
             
             var result = GetStringValue(value);
@@ -89,7 +103,7 @@ namespace XmlToExcel
             }
         }
 
-        private static void LogArray(int arrayIndex, List<string> baseNodes, JArray jArray, ExcelWriter writer)
+        private static void LogArray(int arrayIndex, List<string> baseNodes, JArray jArray, Action<string, string> writer)
         {
             for (int i = 0; i < jArray.Count; i++)
             {
@@ -99,7 +113,7 @@ namespace XmlToExcel
             }
         }
 
-        private static void LogObject(int arrayIndex, List<string> baseNodes, JObject jObject, ExcelWriter writer)
+        private static void LogObject(int arrayIndex, List<string> baseNodes, JObject jObject, Action<string, string> writer)
         {
             var properties = jObject.Properties();
             foreach (var property in properties)
@@ -110,18 +124,11 @@ namespace XmlToExcel
             }
         }
 
-        private static void LogLine(int arrayIndex, List<string> baseNodes, string value, ExcelWriter writer)
+        private static void LogLine(int arrayIndex, List<string> baseNodes, string value, Action<string, string> writer)
         {
             var stringBuilder = new StringBuilder();
             baseNodes.ForEach(x => stringBuilder.Append(x).Append("\\"));
-            if (arrayIndex % 2 == 0)
-            {
-                writer.WriteLineBlue(arrayIndex.ToString(), stringBuilder.ToString(), value);
-            }
-            else
-            {
-                writer.WriteLineGreen(arrayIndex.ToString(), stringBuilder.ToString(), value);
-            }
+            writer.Invoke(stringBuilder.ToString(), value);
         }
 
         private static JObject GetJsonObject(string completePathOfXmlFile)
