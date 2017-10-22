@@ -32,18 +32,26 @@ namespace XmlToExcelUi
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-
-                if (files?.Length != 1) return;
-                var inputFileName = files[0];
-                if (!System.IO.File.Exists(inputFileName)) return;
-                var baseFileName = System.IO.Path.GetFileNameWithoutExtension(inputFileName);
-                var initialDirectory = System.IO.Path.GetDirectoryName(inputFileName);
-                var outputFile = GetOutputFileName(initialDirectory, baseFileName);
-                if(File.Exists(outputFile))
-                    File.Delete(outputFile);
-                if (string.IsNullOrEmpty(outputFile)) return;
-                XmlToExcelConverter.ConvertXmlToExcel(inputFileName, outputFile);
+                processingGrid.Visibility = Visibility.Visible;
+                mainGrid.Visibility = Visibility.Collapsed;
+                OnDropActual(files);
+                mainGrid.Visibility = Visibility.Visible;
+                processingGrid.Visibility = Visibility.Collapsed;
             }
+        }
+
+        private void OnDropActual(string[] files)
+        {
+            if (files?.Length != 1) return;
+            var inputFileName = files[0];
+            if (!System.IO.File.Exists(inputFileName)) return;
+            var baseFileName = System.IO.Path.GetFileNameWithoutExtension(inputFileName);
+            var initialDirectory = System.IO.Path.GetDirectoryName(inputFileName);
+            var outputFile = GetOutputFileName(initialDirectory, baseFileName);
+            if (File.Exists(outputFile))
+                File.Delete(outputFile);
+            if (string.IsNullOrEmpty(outputFile)) return;
+            XmlToExcelConverter.ConvertXmlToExcel(inputFileName, outputFile);
         }
 
         private string GetOutputFileName(string initialDirectory, string baseFileName)

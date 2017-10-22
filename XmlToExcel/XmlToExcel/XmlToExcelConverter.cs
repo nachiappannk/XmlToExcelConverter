@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace XmlToExcel
@@ -19,7 +20,85 @@ namespace XmlToExcel
             var nodesToFirstDimensionArrays = new ArrayNodePathsIdentifier(jsonObject).NodesToFirstDimensionArrays;
             foreach (var nodesToArray in nodesToFirstDimensionArrays)
             {
-                AddExcelSheet(nodesToArray, jsonObject, fileName);
+                var sheetName = GetSheetName(nodesToArray);
+                AddExcelSheet(nodesToArray, jsonObject, fileName, sheetName);
+                AddDetailedExcelSheet(nodesToArray, jsonObject, fileName, sheetName + "Detailed");
+            }
+        }
+
+
+        private static void AddDetailedExcelSheet(List<string> nodesToArray, JObject jsonObject, string fileName, string sheetName)
+        {
+            var jArray = GetArray(jsonObject, nodesToArray);
+            using (var writer = new ExcelWriter(fileName, sheetName))
+            {
+                writer.WriteHeading("ArrayIndex","Relative Node","Value");
+                var nodes = new List<string>();
+                for (int i = 0; i < jArray.Count; i++)
+                {
+                    LogToken(i, nodes, jArray.ElementAt(i), writer);
+                }
+            }
+        }
+
+        private static void LogToken(int arrayIndex, List<string> baseNodes, JToken token, ExcelWriter writer)
+        {
+            var value = token as JValue;
+            if (value != null)
+            {
+                LogValue(arrayIndex, baseNodes, value, writer);
+            }
+
+            var jObject = token as JObject;
+            if (jObject != null)
+            {
+                LogObject(arrayIndex, baseNodes, jObject, writer);
+            }
+
+            var jArray = token as JArray;
+            if (jArray != null)
+            {
+                LogArray(arrayIndex, baseNodes, jArray, writer);
+            }
+
+        }
+
+        private static void LogValue(int arrayIndex , List<string> baseNodes, JValue value, ExcelWriter writer)
+        {
+            LogLine(arrayIndex, baseNodes, value.ToString(), writer);
+        }
+        private static void LogArray(int arrayIndex, List<string> baseNodes, JArray jArray, ExcelWriter writer)
+        {
+            for (int i = 0; i < jArray.Count; i++)
+            {
+                var newNodes = baseNodes.ToList();
+                newNodes.Add("["+i+"]");
+                LogToken(arrayIndex, newNodes, jArray.ElementAt(i), writer);
+            }
+        }
+
+        private static void LogObject(int arrayIndex, List<string> baseNodes, JObject jObject, ExcelWriter writer)
+        {
+            var properties = jObject.Properties();
+            foreach (var property in properties)
+            {
+                var newNodes = baseNodes.ToList();
+                newNodes.Add(property.Name);
+                LogToken(arrayIndex, newNodes, property.Value, writer);
+            }
+        }
+
+        private static void LogLine(int arrayIndex, List<string> baseNodes, string value, ExcelWriter writer)
+        {
+            var stringBuilder = new StringBuilder();
+            baseNodes.ForEach(x => stringBuilder.Append(x).Append("\\"));
+            if (arrayIndex % 2 == 0)
+            {
+                writer.Write(arrayIndex.ToString(), stringBuilder.ToString(), value);
+            }
+            else
+            {
+                writer.Write(arrayIndex.ToString(), stringBuilder.ToString(), value);
             }
         }
 
@@ -34,10 +113,8 @@ namespace XmlToExcel
             return jsonObject;
         }
 
-        private static void AddExcelSheet(List<string> nodesToArray, JObject jsonObject, string fileName)
+        private static void AddExcelSheet(List<string> nodesToArray, JObject jsonObject, string fileName, string sheetName)
         {
-            var sheetName = GetSheetName(nodesToArray);
-
             var jArray = GetArray(jsonObject, nodesToArray);
             Dictionary<string, int> dictionary = new Dictionary<string, int>();
             int entryIndex = 1;

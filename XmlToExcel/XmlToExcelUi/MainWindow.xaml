@@ -6,11 +6,18 @@
         xmlns:local="clr-namespace:XmlToExcelUi"
         mc:Ignorable="d"
         Icon="xml2excel.ico"
-        Title="Xml to Excel Converter" Height="300" Width="300" AllowDrop="true" Drop="UIElement_OnDrop">
-    <Grid Background="Blue">
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
-            <Label Content="Converts xml to excel" FontWeight="Bold" Foreground="White" FontSize="22" Margin="10"/>
-            <Label Content="Drag and drop xml file" FontWeight="Bold" Foreground="White" FontSize="22" Margin="10"/>
-        </StackPanel>
+        Title="Xml to Excel Converter" Height="300" Width="300">
+    <Grid>
+        <Grid Name="mainGrid" Background="Blue" Visibility="Visible" AllowDrop="True" Drop="UIElement_OnDrop">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical" >
+                <Label Content="Converts xml to excel" FontWeight="Bold" Foreground="White" FontSize="22" Margin="10"/>
+                <Label Content="Drag and drop xml file" FontWeight="Bold" Foreground="White" FontSize="22" Margin="10"/>
+            </StackPanel>
+        </Grid>
+        <Grid Name="processingGrid" Background="DarkGray" Visibility="Collapsed">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical" >
+                <Label Content="Please Wait Processing" FontWeight="Bold" Foreground="White" FontSize="22" Margin="10"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>

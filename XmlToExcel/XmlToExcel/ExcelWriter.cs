@@ -50,6 +50,29 @@ namespace XmlToExcel
             _rowToWrite++;
         }
 
+
+        public void WriteLineGreen(params string[] strs)
+        {
+            using (var range = _workSheet.Cells[_rowToWrite, 1, 1, strs.Length])
+            {
+                range.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                range.Style.Fill.BackgroundColor.SetColor(Color.LightGreen);
+                range.AutoFilter = true;
+            }
+            Write(strs);
+        }
+
+        public void WriteLineBlue(params string[] strs)
+        {
+            using (var range = _workSheet.Cells[_rowToWrite, 1, 1, strs.Length])
+            {
+                range.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                range.Style.Fill.BackgroundColor.SetColor(Color.LightBlue);
+                range.AutoFilter = true;
+            }
+            Write(strs);
+        }
+
         public void WriteHeading(params string[] strs)
         {
             Write(strs);
