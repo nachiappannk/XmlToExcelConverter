@@ -65,7 +65,28 @@ namespace XmlToExcel
 
         private static void LogValue(int arrayIndex , List<string> baseNodes, JValue value, ExcelWriter writer)
         {
-            LogLine(arrayIndex, baseNodes, value.ToString(), writer);
+            var settings = new JsonSerializerSettings { DateParseHandling = DateParseHandling.None };
+            var container = value.Parent;
+            if (container.Type == JTokenType.Property)
+            {
+                try
+                {
+                    var data = JsonConvert.DeserializeObject<JObject>("{"+ value.Parent.ToString() +"}", settings).Values()
+                        .ElementAt(0);
+                    var result = data.Value<string>();
+                    LogLine(arrayIndex, baseNodes, result, writer);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+            }
+            else
+            {
+                LogLine(arrayIndex, baseNodes, value.ToString(), writer);
+            }
+
         }
         private static void LogArray(int arrayIndex, List<string> baseNodes, JArray jArray, ExcelWriter writer)
         {
