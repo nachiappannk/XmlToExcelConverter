@@ -158,7 +158,7 @@ namespace XmlToExcel
                             if (p != null)
                             {
                                 var text = p.Value.ToString();
-                                //text = text.Replace(Environment.NewLine, string.Empty);
+                                text = text.Replace(Environment.NewLine, string.Empty);
                                 text = Regex.Replace(text, @"[^\S\r\n]+", " ");
                                 results.Add(text);
                             }
