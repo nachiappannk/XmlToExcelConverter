@@ -94,11 +94,11 @@ namespace XmlToExcel
             baseNodes.ForEach(x => stringBuilder.Append(x).Append("\\"));
             if (arrayIndex % 2 == 0)
             {
-                writer.Write(arrayIndex.ToString(), stringBuilder.ToString(), value);
+                writer.WriteLineBlue(arrayIndex.ToString(), stringBuilder.ToString(), value);
             }
             else
             {
-                writer.Write(arrayIndex.ToString(), stringBuilder.ToString(), value);
+                writer.WriteLineGreen(arrayIndex.ToString(), stringBuilder.ToString(), value);
             }
         }
 
