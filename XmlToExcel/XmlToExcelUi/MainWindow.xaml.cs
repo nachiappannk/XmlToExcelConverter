@@ -32,12 +32,39 @@ namespace XmlToExcelUi
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-                processingGrid.Visibility = Visibility.Visible;
-                mainGrid.Visibility = Visibility.Collapsed;
-                OnDropActual(files);
-                mainGrid.Visibility = Visibility.Visible;
-                processingGrid.Visibility = Visibility.Collapsed;
+                SetProcessingState();
+                try
+                {
+                    OnDropActual(files);
+                    SetInitialState();
+                }
+                catch (Exception exception)
+                {
+                    errorMessage.Text = exception.ToString();
+                    GetErrorState();
+                }
             }
+        }
+
+        private void GetErrorState()
+        {
+            mainGrid.Visibility = Visibility.Collapsed;
+            processingGrid.Visibility = Visibility.Collapsed;
+            errorGrid.Visibility = Visibility.Visible;
+        }
+
+        private void SetInitialState()
+        {
+            mainGrid.Visibility = Visibility.Visible;
+            processingGrid.Visibility = Visibility.Collapsed;
+            errorGrid.Visibility = Visibility.Collapsed;
+        }
+
+        private void SetProcessingState()
+        {
+            processingGrid.Visibility = Visibility.Visible;
+            mainGrid.Visibility = Visibility.Collapsed;
+            errorGrid.Visibility = Visibility.Collapsed;
         }
 
         private void OnDropActual(string[] files)
@@ -73,6 +100,12 @@ namespace XmlToExcelUi
                 return dlg.FileName;
             }
             return string.Empty;
+        }
+
+        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        {
+            errorMessage.Text = "";
+            SetInitialState();
         }
     }
 }

@@ -65,29 +65,30 @@ namespace XmlToExcel
 
         private static void LogValue(int arrayIndex , List<string> baseNodes, JValue value, ExcelWriter writer)
         {
+            
+            var result = GetStringValue(value);
+            LogLine(arrayIndex, baseNodes, result, writer);
+
+        }
+
+        private static string GetStringValue(JValue value)
+        {
             var settings = new JsonSerializerSettings { DateParseHandling = DateParseHandling.None };
             var container = value.Parent;
             if (container.Type == JTokenType.Property)
             {
-                try
-                {
-                    var data = JsonConvert.DeserializeObject<JObject>("{"+ value.Parent.ToString() +"}", settings).Values()
-                        .ElementAt(0);
-                    var result = data.Value<string>();
-                    LogLine(arrayIndex, baseNodes, result, writer);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
+                var data = JsonConvert.DeserializeObject<JObject>("{" + value.Parent.ToString() + "}", settings).Values()
+                    .ElementAt(0);
+                var result = data.Value<string>();
+                if (string.IsNullOrWhiteSpace(result)) return "";
+                return result;
             }
             else
             {
-                LogLine(arrayIndex, baseNodes, value.ToString(), writer);
+                return value.ToString();
             }
-
         }
+
         private static void LogArray(int arrayIndex, List<string> baseNodes, JArray jArray, ExcelWriter writer)
         {
             for (int i = 0; i < jArray.Count; i++)
@@ -181,16 +182,12 @@ namespace XmlToExcel
                                 var text = p.Value.ToString();
                                 if (p.Value is JValue)
                                 {
-                                    var newlyReadText = GetValueToPreventInterpretationOfDate(p.ToString());
-                                    if (!string.IsNullOrEmpty(newlyReadText))
-                                    {
-                                        text = newlyReadText;
-                                    }
-
+                                    text = GetStringValue((JValue)p.Value);
                                 }
                                 text = text.Replace(Environment.NewLine, string.Empty);
                                 text = Regex.Replace(text, @"[^\S\r\n]+", " ");
                                 results.Add(text);
+                                
                             }
                             else
                             {
@@ -204,20 +201,6 @@ namespace XmlToExcel
                         writer.Write(element.ToString());
                     }
                 }
-            }
-        }
-
-        private static string GetValueToPreventInterpretationOfDate(string input)
-        {
-            try
-            {
-                var settings = new JsonSerializerSettings { DateParseHandling = DateParseHandling.None };
-                var data = JsonConvert.DeserializeObject<JObject>("{" + input + "}", settings).Values().ElementAt(0);
-                return data.Value<string>();
-            }
-            catch (Exception e)
-            {
-                return String.Empty;
             }
         }
 
