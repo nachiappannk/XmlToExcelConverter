@@ -158,6 +158,15 @@ namespace XmlToExcel
                             if (p != null)
                             {
                                 var text = p.Value.ToString();
+                                if (p.Value is JValue)
+                                {
+                                    var newlyReadText = GetValueToPreventInterpretationOfDate(p.ToString());
+                                    if (!string.IsNullOrEmpty(newlyReadText))
+                                    {
+                                        text = newlyReadText;
+                                    }
+
+                                }
                                 text = text.Replace(Environment.NewLine, string.Empty);
                                 text = Regex.Replace(text, @"[^\S\r\n]+", " ");
                                 results.Add(text);
@@ -174,6 +183,20 @@ namespace XmlToExcel
                         writer.Write(element.ToString());
                     }
                 }
+            }
+        }
+
+        private static string GetValueToPreventInterpretationOfDate(string input)
+        {
+            try
+            {
+                var settings = new JsonSerializerSettings { DateParseHandling = DateParseHandling.None };
+                var data = JsonConvert.DeserializeObject<JObject>("{" + input + "}", settings).Values().ElementAt(0);
+                return data.Value<string>();
+            }
+            catch (Exception e)
+            {
+                return String.Empty;
             }
         }
 
