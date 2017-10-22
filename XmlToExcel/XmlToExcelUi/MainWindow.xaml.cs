@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,18 +36,22 @@ namespace XmlToExcelUi
                 if (files?.Length != 1) return;
                 var inputFileName = files[0];
                 if (!System.IO.File.Exists(inputFileName)) return;
-                var outputFile = GetOutputFileName();
+                var baseFileName = System.IO.Path.GetFileNameWithoutExtension(inputFileName);
+                var initialDirectory = System.IO.Path.GetDirectoryName(inputFileName);
+                var outputFile = GetOutputFileName(initialDirectory, baseFileName);
+                if(File.Exists(outputFile))
+                    File.Delete(outputFile);
                 if (string.IsNullOrEmpty(outputFile)) return;
                 XmlToExcelConverter.ConvertXmlToExcel(inputFileName, outputFile);
-                
             }
         }
 
-        private string GetOutputFileName()
+        private string GetOutputFileName(string initialDirectory, string baseFileName)
         {
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-            dlg.FileName = "Result"; // Default file name
+            dlg.FileName = baseFileName; // Default file name
             dlg.DefaultExt = ".xlsx"; // Default file extension
+            dlg.InitialDirectory = initialDirectory;
             dlg.Filter = "Excel documents (.xlsx)|*.xlsx"; // Filter files by extension
             
 
