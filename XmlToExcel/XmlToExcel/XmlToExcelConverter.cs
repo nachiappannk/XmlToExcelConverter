@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -17,7 +18,7 @@ namespace XmlToExcel
             var fileName = outputExcel;
 
             var jsonObject = GetJsonObject(completePathOfXmlFile);
-            AddCompleteSummary(jsonObject, fileName, "CompleteSummary");
+            //AddCompleteSummary(jsonObject, fileName, "CompleteSummary");
             var nodesToFirstDimensionArrays = new ArrayNodePathsIdentifier(jsonObject).NodesToFirstDimensionArrays;
             foreach (var nodesToArray in nodesToFirstDimensionArrays)
             {
@@ -47,25 +48,20 @@ namespace XmlToExcel
             using (var writer = new ExcelWriter(fileName, sheetName))
             {
                 writer.WriteHeading("ArrayIndex","Relative Node","Value");
-
+                var detailedReportWriter = new DetailedReportWriter(writer);
 
                 var nodes = new List<string>();
                 for (int i = 0; i < jArray.Count; i++)
                 {
-                    int index = i;
+                    Dictionary<string, string> rowData = new Dictionary<string, string>();
                     Action<string,string> writeFunction = (a,b) =>
                     {
-                        if (index % 2 == 0)
-                        {
-                            writer.WriteLineGreen(index.ToString(), a, b);
-                        }
-                        else
-                        {
-                            writer.WriteLineBlue(index.ToString(), a, b);
-                        }
+                        rowData.Add(a,b);
                     };
                     LogToken(i, nodes, jArray.ElementAt(i), writeFunction);
+                    detailedReportWriter.Write(rowData);
                 }
+                detailedReportWriter.Dispose();
             }
         }
 
@@ -254,3 +250,6 @@ namespace XmlToExcel
         }
     }
 }
+
+
+

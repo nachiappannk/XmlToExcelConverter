@@ -73,6 +73,7 @@ namespace XmlToExcel
 
         public void WriteHeading(params string[] strs)
         {
+            _rowToWrite = 1;
             Write(strs);
             using (var range = _workSheet.Cells[1, 1, 1, strs.Length])
             {
